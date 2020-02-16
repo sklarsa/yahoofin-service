@@ -6,6 +6,7 @@ import (
 	"github.com/sklarsa/yahoofin"
 	"net/http"
 	"strings"
+	"time"
 )
 
 var yahooClient *yahoofin.Client
@@ -13,7 +14,7 @@ var yahooClient *yahoofin.Client
 func main() {
 
 	r := mux.NewRouter()
-	r.HandleFunc("/{ticker}/{field}", priceHandler)
+	r.HandleFunc("/{ticker}", priceHandler)
 
 	http.Handle("/", r)
 	http.ListenAndServe(":8080", nil)
@@ -27,8 +28,16 @@ func getClient() (*yahoofin.Client, error) {
 	return yahooClient, nil
 }
 
+func parseQsDate(val string) (time.Time, error) {
+	parsed, err := time.Parse("2006-01-02", val)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("Invalid or missing date: '%v'", val)
+	}
+	return parsed, nil
+}
+
 func priceHandler(w http.ResponseWriter, r *http.Request) {
-	_, err := getClient()
+	client, err := getClient()
 	if err != nil {
 		http.Error(w, "Error retrieving yahoofin client", 500)
 		return
@@ -37,23 +46,28 @@ func priceHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 
 	errors := make([]string, 0)
-	startDate := query.Get("startDate")
-	if startDate == "" {
-		errors = append(errors, "Missing querystring param: startDate")
+	startDate, err := parseQsDate(query.Get("startDate"))
+	if err != nil {
+		errors = append(errors, fmt.Sprintf("startDate: %v", err.Error()))
 	}
 
-	endDate := query.Get("endDate")
-	if endDate == "" {
-		errors = append(errors, "Missing querystring param: endDate")
+	endDate, err := parseQsDate(query.Get("endDate"))
+	if err != nil {
+		errors = append(errors, fmt.Sprintf("endDate: %v", err.Error()))
 	}
 
 	if len(errors) > 0 {
-		http.Error(w, strings.Join(errors, "\n"), 500)
+		http.Error(w, strings.Join(errors, "\n"), 400)
+		return
 	}
 
 	vars := mux.Vars(r)
-	w.Write([]byte(fmt.Sprintf("%v", vars)))
+	data, err := client.GetSecurityDataString(vars["ticker"], startDate, endDate, yahoofin.History)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
 
-	//client.GetSecurityData(vars["ticker"])
+	w.Write([]byte(data))
 
 }
