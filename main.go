@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/sklarsa/yahoofin"
+	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
@@ -14,7 +15,11 @@ var yahooClient *yahoofin.Client
 func main() {
 
 	r := mux.NewRouter()
+	r.HandleFunc("/", rootHandler)
 	r.HandleFunc("/{ticker}", priceHandler)
+
+	r.PathPrefix("/dist").Handler(http.StripPrefix("/dist/", http.FileServer(http.Dir("./dist"))))
+	r.PathPrefix("/node_modules").Handler(http.StripPrefix("/node_modules/", http.FileServer(http.Dir("./node_modules"))))
 
 	http.Handle("/", r)
 	http.ListenAndServe(":8080", nil)
@@ -36,6 +41,15 @@ func parseQsDate(val string) (time.Time, error) {
 	return parsed, nil
 }
 
+func rootHandler(w http.ResponseWriter, r *http.Request) {
+	templatePath := "templates/index.html"
+	data, err := ioutil.ReadFile(templatePath)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Template not found %v", templatePath), 500)
+		return
+	}
+	w.Write(data)
+}
 func priceHandler(w http.ResponseWriter, r *http.Request) {
 	client, err := getClient()
 	if err != nil {
@@ -58,7 +72,7 @@ func priceHandler(w http.ResponseWriter, r *http.Request) {
 
 	if len(errors) > 0 {
 		http.Error(w, strings.Join(errors, "\n"), 400)
-		return
+
 	}
 
 	vars := mux.Vars(r)
@@ -68,6 +82,7 @@ func priceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Add("Content-Type", "text/csv")
 	w.Write([]byte(data))
 
 }
