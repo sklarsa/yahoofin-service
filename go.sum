@@ -1,0 +1,6 @@
+github.com/gocarina/gocsv v0.0.0-20200212142550-0b7418e775b8 h1:O2B7EGXz5g2pZINUXQMSCQuhKQ+HLrLwtdvFacEJnUE=
+github.com/gocarina/gocsv v0.0.0-20200212142550-0b7418e775b8/go.mod h1:5YoVOkjYAQumqlV356Hj3xeYh4BdZuLE0/nRkf2NKkI=
+github.com/gorilla/mux v1.7.4 h1:VuZ8uybHlWmqV03+zRzdwKL4tUnIp1MAQtp1mIFE1bc=
+github.com/gorilla/mux v1.7.4/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB71So=
+github.com/sklarsa/yahoofin v0.0.0-20190418015730-1455ecc26378 h1:vGjOpGpI6Fyd11Pubc95TVE+IFODNkyAlL0C33ccjt8=
+github.com/sklarsa/yahoofin v0.0.0-20190418015730-1455ecc26378/go.mod h1:fVrHxV8AcqqsRYc23RD7Ly/PIinVDs16h3k+JyqK8Jk=
