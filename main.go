@@ -50,6 +50,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Write(data)
 }
+
 func priceHandler(w http.ResponseWriter, r *http.Request) {
 	client, err := getClient()
 	if err != nil {
@@ -72,7 +73,7 @@ func priceHandler(w http.ResponseWriter, r *http.Request) {
 
 	if len(errors) > 0 {
 		http.Error(w, strings.Join(errors, "\n"), 400)
-
+		return
 	}
 
 	vars := mux.Vars(r)
