@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/sklarsa/yahoofin"
-	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
