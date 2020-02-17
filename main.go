@@ -15,11 +15,7 @@ var yahooClient *yahoofin.Client
 func main() {
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", rootHandler)
 	r.HandleFunc("/{ticker}", priceHandler)
-
-	r.PathPrefix("/dist").Handler(http.StripPrefix("/dist/", http.FileServer(http.Dir("./dist"))))
-	r.PathPrefix("/node_modules").Handler(http.StripPrefix("/node_modules/", http.FileServer(http.Dir("./node_modules"))))
 
 	http.Handle("/", r)
 	http.ListenAndServe(":8080", nil)
@@ -39,16 +35,6 @@ func parseQsDate(val string) (time.Time, error) {
 		return time.Time{}, fmt.Errorf("Invalid or missing date: '%v'", val)
 	}
 	return parsed, nil
-}
-
-func rootHandler(w http.ResponseWriter, r *http.Request) {
-	templatePath := "templates/index.html"
-	data, err := ioutil.ReadFile(templatePath)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Template not found %v", templatePath), 500)
-		return
-	}
-	w.Write(data)
 }
 
 func priceHandler(w http.ResponseWriter, r *http.Request) {
